@@ -95,6 +95,7 @@ app.use(cors());
 // });
 
 app.use("/api/project-data", projectRouter);
+app.use("/api/project-search", projectRouter);
 
 const port = 5000;
 app.listen(port, () => {

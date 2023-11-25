@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const email = "srzafar1@gmail.com";
+const email = process.env.EMAIL;
 const apiToken = process.env.Token;
 
 const authorizationHeader = `Basic ${Buffer.from(
@@ -55,4 +55,52 @@ const func = async (req, res) => {
   }
 };
 
-export { func };
+const search = async (req, res) => {
+  try {
+    const { query } = req.query;
+    let jqlQuery = `text = "${query}"`; // Use 'let' instead of 'const'
+
+    const searchResponse = await fetch(
+      `https://proprint.atlassian.net/rest/api/3/search?jql=${encodeURIComponent(
+        jqlQuery
+      )}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: authorizationHeader,
+          Accept: "application/json",
+        },
+      }
+    );
+
+    const searchData = await searchResponse.json();
+    if (searchData.issues.length === 0) {
+      const issueKeyRegex = /^[A-Z]+-\d+$/;
+      if (issueKeyRegex.test(query)) {
+        jqlQuery = `key = "${query}"`;
+      } else {
+        jqlQuery = `project ="${query}"`;
+      }
+      const searchResponse = await fetch(
+        `https://proprint.atlassian.net/rest/api/3/search?jql=${encodeURIComponent(
+          jqlQuery
+        )}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: authorizationHeader,
+            Accept: "application/json",
+          },
+        }
+      );
+      const searchData = await searchResponse.json();
+      return res.json(searchData);
+    }
+    return res.json(searchData);
+  } catch (error) {
+    console.error("Error searching Jira:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export { func, search };
