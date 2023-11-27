@@ -74,7 +74,7 @@ const search = async (req, res) => {
     );
 
     const searchData = await searchResponse.json();
-    if (searchData.issues.length === 0) {
+    if (searchData.issues?.length === 0) {
       const issueKeyRegex = /^[A-Z]+-\d+$/;
       if (issueKeyRegex.test(query)) {
         jqlQuery = `key = "${query}"`;
