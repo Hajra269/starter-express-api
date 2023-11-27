@@ -58,7 +58,7 @@ const func = async (req, res) => {
 const search = async (req, res) => {
   try {
     const { query } = req.query;
-    let jqlQuery = `text = "${query}"`; // Use 'let' instead of 'const'
+    let jqlQuery = `text ~ "${query}"`; // Use the ~ operator for 'contains' in text field
 
     const searchResponse = await fetch(
       `https://proprint.atlassian.net/rest/api/3/search?jql=${encodeURIComponent(
@@ -79,7 +79,7 @@ const search = async (req, res) => {
       if (issueKeyRegex.test(query)) {
         jqlQuery = `key = "${query}"`;
       } else {
-        jqlQuery = `project ="${query}"`;
+        jqlQuery = `project = "${query}"`; // Fix the syntax for project search
       }
       const searchResponse = await fetch(
         `https://proprint.atlassian.net/rest/api/3/search?jql=${encodeURIComponent(
